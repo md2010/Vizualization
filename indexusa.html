@@ -10,12 +10,38 @@
 
 <div id="data"> 
 	<p id="state"> Zupanija </p>
-	<p id="n"> Novorodeni </p>
+	<p id="n"> Ukupan broj </p>
+</div>
+
+<div id="dataSum"> Summary of accidents for USA 
+	<div id="weather"> WEATHER </div>
+	<div id="num"> NUMBER </div>
 </div>
 
 <script>
-
+dataSum = [
+			{"weather" : "Clear", "num" : 24963}, 
+			{"weather" : "Rain", "num" : 2634},	
+			{"weather" : "Cloudy", "num" :4622},
+			{"weather" : "Fog,smog, smoke", "num" :370}
+		  ];
+		  
+d3.select("#weather")
+	.selectAll("div")
+	.data(dataSum)
+	.enter()
+	.insert("p")
+	.text(function (d, i) { return d.weather; });
+	
+d3.select("#num")
+	.selectAll("div")
+	.data(dataSum)
+	.enter()
+	.insert("p")
+	.text(function (d, i) { return d.num; });
+	
 d3.select("#data").style('visibility', 'hidden');
+
 var width = 1000;
 var height = 700;
 var projection = d3.geo.albers()
