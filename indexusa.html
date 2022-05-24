@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div id="data"> 
+	<p id="state"> Zupanija </p>
+	<p id="n"> Novorodeni </p>
+</div>
+
+<script>
+
+d3.select("#data").style('visibility', 'hidden');
+var width = 1000;
+var height = 700;
+var projection = d3.geo.albers()
+
+var path = d3.geo.path()
+.projection(projection);
+
+var svg = d3.select("body").append("svg")
+.attr("width", width)
+.attr("height", height);
+
+var g = svg.append("g");
+
+d3.json("us.json", function(error, us) {
+	var statesData = topojson.feature(us, us.objects.states);
+	var states = g.selectAll('path.state')
+		.data(statesData.features)
+		.enter()
+		.append('path')
+		.classed("state", true)
+		.attr("d", path)
+		.style("fill", "blue")
+		.style("stroke", "white")
+		.style("stroke-width", 2)
+		.style("fill-opacity", function() { return Math.random(); })
+		.on("click", function(d) { clicked(d); });
+});
+
+function clicked(d) {
+
+d3.select("#data").transition().style('visibility', 'visible');
+d3.select("#state")
+	.text(d.properties.name);
+var bounds = path.bounds(d),
+				dx = bounds[1][0] - bounds[0][0],
+				dy = bounds[1][1] - bounds[0][1],
+				x = (bounds[0][0] + bounds[1][0]) / 2,
+				y = (bounds[0][1] + bounds[1][1]) / 2,
+				scale = .9 / Math.max(dx / width, dy / height),
+				translate = [width / 2 - scale * x, height / 2 - scale * y];
+	
+			g.transition()
+				.duration(750)
+				.attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+	
+			g.transition()
+				.duration(750)
+				.delay(5000)
+				.attr("transform", "");
+				
+d3.select("#data").transition().delay(5000).duration(1000).style("visibility", "hidden");
+}
+
+</script>
+</body>
+</html>
+
