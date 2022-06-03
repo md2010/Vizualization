@@ -1,0 +1,14 @@
+JSON objects push to array
+https://stackoverflow.com/questions/19064487/how-to-push-elements-in-json-from-javascript-array 
+
+array function return by key value
+https://stackoverflow.com/questions/52012294/array-look-up-in-d3-js
+
+table 
+http://bl.ocks.org/jfreels/6734025
+
+axis style
+https://stackoverflow.com/questions/41536903/change-the-thickness-width-of-a-d3-charts-axis-lines-without-affecting-tick-lab
+
+highlight min and max in table
+https://stackoverflow.com/questions/40105768/jquery-javascript-find-highest-value-in-table-column

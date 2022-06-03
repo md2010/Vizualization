@@ -4,27 +4,30 @@
 <meta charset="utf-8">
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 <link rel="stylesheet" href="index.css">
+
 </head>
 <body>
 
 <div id="data"> 
-	<div id="state"> State </div>
-	<div id="weatherState"> WEATHER </div>
-	<div id="numState"> NUMBER </div>
+	<p id="state"> State </p>
 </div>
 
-<div id="dataSum"> Summary of accidents for USA 
+<div id="dataSum"> 
+	<div id=title> Summary of accidents USA </div>
 	<div id="weather"> WEATHER </div>
 	<div id="num"> NUMBER </div>
 </div>
 
 <script>
+
 dataSum = [
 			{"weather" : "Clear", "num" : 24963}, 
 			{"weather" : "Rain", "num" : 2634},	
 			{"weather" : "Cloudy", "num" :4622},
-			{"weather" : "Fog,smog, smoke", "num" :370}
+			{"weather" : "Fog,smog, smoke", "num" :370},
+			{"weather" : "Drunk Drive", "num" : 8990},
 		  ];
 	  
 d3.select("#weather")
@@ -56,7 +59,15 @@ var svg = d3.select("body").append("svg")
 
 var g = svg.append("g");
 
-d3.json("us.json", function(error, us) {
+//redoslijed suma po us.json
+var sums = [1036,57,953, 270, 3732,1864, 959, 157, 210, 393, 455, 664, 1708, 122,750, 506, 169, 4323, 138,358,1153,320,1283,455,724,4419,125,43,104,363,888,668,1257,767,263,131,1116,1500,446,1352,302,374,685,729,0,0,0,273,1294,0,0,240,353,73,964,91];
+
+d3.json("usOrig.json", function(error, us) {
+	
+	var color = d3.scale.linear()
+	  .domain([43,4419])
+	  .range(["blanchedalmond", "darkgoldenrod"]);
+	
 	var statesData = topojson.feature(us, us.objects.states);
 	var states = g.selectAll('path.state')
 		.data(statesData.features)
@@ -64,48 +75,181 @@ d3.json("us.json", function(error, us) {
 		.append('path')
 		.classed("state", true)
 		.attr("d", path)
-		.style("fill", "blue")
 		.style("stroke", "white")
 		.style("stroke-width", 2)
-		.style("fill-opacity", function() { return Math.random(); })
+		.attr("fill", function (d, i) { return color(sums[i]); })
 		.on("click", function(d, i) { clicked(d, i); });
 });
 
-function clicked(d, i) {
 
+/*function findColor(s) {
+	let num;
+	d3.json("accidentsByState.json", function(d) {	
+		num =d.find(itm => itm.state == s);	
+	});
+	return num;
+};	*/
+
+function clicked(d, i) {
 d3.select("#data").transition().style('visibility', 'visible');
 d3.select("#state")
 	.text(d.properties.name);
-	
+var st = "Alabama";
 var s = d.properties.name;
-dataSum = [
-			{"weather" : "Clear", "num" : 24963}, 
-			{"weather" : "Rain", "num" : 2634},	
-			{"weather" : "Cloudy", "num" :4622},
-			{"weather" : "Fog,smog, smoke", "num" :370}
-		  ];
 d3.json("accidentsByState.json", function(data) {	
 	
 	let result=data.find(itm => itm.state == s);
 	var obj = [];
-	console.log(result);
 	obj.push(result.clear);
 	obj.push(result.rain);
+	obj.push(result.cloudy);
+	obj.push(result.fogsmogsmoke);
+	obj.push(result.drunkdrive);
+	var json = [];
+	var weather = ["Clear", "Rain",	"Cloudy","Fog, smog, smoke", "Drunk drive"];
+	for(var i = 0; i < weather.length; i++) {
+		var item = { "condition" : weather[i], "number" : obj[i] };
+		json.push(item);
+	}
 	
-	d3.select("#weatherState")
-	.selectAll("div")
-	.data(dataSum)
-	.enter()
-	.insert("p")
-	.text(function (d, i) { return d.weather; });
-		
-	d3.select("#numState")
-		.selectAll("div")
-		.data(obj)
-		.enter()
-		.insert("p")
-		.text(function(obj) { return obj; });
+	createBarchart(obj);
+	tableData(st);
 });
+
+function tableData(s) {
+
+d3.json("accidentsByTime.json", function(data) {
+var obj = [];	
+	for(var i = 0; i < data.length; i++) {
+		if(data[i].state == s) {
+			obj.push(data[i]);
+		}
+	}
+	var json = [];
+	for(var i = 0; i < obj.length; i++) {
+		var item = { "time" : obj[i].time, "number" : obj[i].number };
+		json.push(item);
+	}
+	tabulate(json, ['time', 'number']);
+	highlight();
+});
+
+}
+
+function tabulate(data, columns) {
+		var table = d3.select("#data").append('table')
+		var thead = table.append('thead')
+		var	tbody = table.append('tbody');
+
+		// append the header row
+		thead.append('tr')
+		  .selectAll('th')
+		  .data(columns).enter()
+		  .append('th')
+		    .text(function (column) { return column; });
+
+		// create a row for each object in the data
+		var rows = tbody.selectAll('tr')
+		  .data(data)
+		  .enter()
+		  .append('tr');
+
+		// create a cell in each row for each column
+		var cells = rows.selectAll('td')
+		  .data(function (row) {
+		    return columns.map(function (column) {
+		      return {column: column, value: row[column]};
+		    });
+		  })
+		  .enter()
+		  .append('td')
+		    .text(function (d) { return d.value; });
+	  return table;
+}
+
+function highlight(){
+	$(function(){
+	  var cols = []
+	  var trs = $('table tr')
+	  var data =$.each(trs , function(index, tr){
+		$.each($(tr).find("td").not(":first"), function(index, td){
+		  cols[index] = cols[index] || [];
+		  cols[index].push($(td).text())
+		})
+	  });
+	  cols.forEach(function(col, index){
+		var max = Math.max.apply(null, col);
+		var min = Math.min.apply(null, col)
+		$('table tr').find('td:eq('+(index+1)+')').each(function(i, td){
+		  $(td).toggleClass('max', +$(td).text() === max)
+		  $(td).toggleClass('min', +$(td).text() === min)  
+		})
+	  })
+	})
+}
+
+function createBarchart(obj) {
+
+d3.select("#state").append('svg');
+	  
+var margin = {top: 20, bottom: 70, left:40, right: 20};
+var width = 500 - margin.left - margin.right;
+var height = 500 - margin.top - margin.bottom;
+var barPadding = 4;
+var barWidth = 50; //width / obj.length - barPadding;
+
+var x = d3.scale.ordinal()
+.domain(d3.range(obj.length))
+.rangeRoundBands([0, width]);
+
+var y = d3.scale.linear()
+.domain([0, d3.max(obj)])
+.range([height, 0]);
+
+var svg = d3.select("div")
+.append("svg")
+.attr("width", width + margin.left + margin.right)
+.attr("height", height + margin.bottom + margin.top)
+.style("background-color", "beige")
+.append("g")
+.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+var barchart = svg.selectAll("rect")
+.data(obj)
+.enter()
+.append("rect")
+.attr("x", function(d, i) { return x(i); })
+.attr("y", y) .attr("height", function(d) { return height - y(d); })
+.attr("width", barWidth)
+.attr("fill", "lightblue");
+
+var xAxis = d3.svg.axis()
+.scale(x)
+.orient("bottom")
+.tickFormat(function(d, i) { return dataSum[i].weather; });
+
+var yAxis = d3.svg.axis()
+.scale(y)
+.orient("left")
+.ticks(10);
+
+svg.append("g")
+.attr("class", "x axis")
+.attr("transform", "translate(0," + height + ")")
+.call(xAxis)
+.selectAll("text")
+.style("text-anchor", "left");
+
+svg.append("g")
+.attr("class", "y axis")
+.call(yAxis)
+.append("text")
+.attr("transform", "rotate(-90)")
+.attr("y", 6)
+.attr("dy", ".71em")
+.style("text-anchor", "end")
+
+}
 
 var bounds = path.bounds(d),
 				dx = bounds[1][0] - bounds[0][0],
@@ -125,8 +269,10 @@ var bounds = path.bounds(d),
 				.attr("transform", "");
 				
 d3.select("#data").transition().delay(5000).duration(1000).style("visibility", "hidden");
-d3.select("#data").selectAll("p").remove();
+d3.select("#data").selectAll("table").remove();
+d3.select("#data").selectAll("svg").remove();
 }
+
 
 </script>
 </body>

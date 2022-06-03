@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<style> 
+.axis {
+  font: 12px sans-serif;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+  stroke-width: 2px;
+}
+</style>
+
+<script>
+
+var s = "Alabama";
+
+d3.json("accidentsByState.json", function(data) {	
+	
+	let result=data.find(itm => itm.state == s);
+	var obj = [];
+	obj.push(result.clear);
+	obj.push(result.rain);
+	obj.push(result.cloudy);
+	obj.push(result.fogsmogsmoke);
+	obj.push(result.drunkdrive);
+	
+	dataSum = [
+			{"weather" : "Clear", "num" : 24963}, 
+			{"weather" : "Rain", "num" : 2634},	
+			{"weather" : "Cloudy", "num" :4622},
+			{"weather" : "Fog,smog,smoke", "num" :370},
+			{"weather" : "Drunk Drive", "num" : 8990},
+		  ];
+		  
+var margin = {top: 20, bottom: 70, left:40, right: 20};
+var width = 450 - margin.left - margin.right;
+var height = 500 - margin.top - margin.bottom;
+var barPadding = 4;
+var barWidth = 50; //width / obj.length - barPadding;
+
+var x = d3.scale.ordinal()
+.domain(d3.range(obj.length))
+.rangeRoundBands([0, width]);
+
+var y = d3.scale.linear()
+.domain([0, d3.max(obj)])
+.range([height, 0]);
+
+var svg = d3.select("body")
+.append("svg")
+.attr("width", width + margin.left + margin.right)
+.attr("height", height + margin.bottom + margin.top)
+.style("background-color", "lightblue")
+.append("g")
+.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+var barchart = svg.selectAll("rect")
+.data(obj)
+.enter()
+.append("rect")
+.attr("x", function(d, i) { return x(i); })
+.attr("y", y) .attr("height", function(d) { return height - y(d); })
+.attr("width", barWidth)
+.attr("fill", "blue");
+
+var xAxis = d3.svg.axis()
+.scale(x)
+.orient("bottom")
+.tickFormat(function(d, i) { return dataSum[i].weather; });
+
+var yAxis = d3.svg.axis()
+.scale(y)
+.orient("left")
+.ticks(10);
+
+svg.append("g")
+.attr("class", "x axis")
+.attr("transform", "translate(0," + height + ")")
+.call(xAxis)
+.selectAll("text")
+.style("text-anchor", "left");
+
+svg.append("g")
+.attr("class", "y axis")
+.call(yAxis)
+.append("text")
+.attr("transform", "rotate(-90)")
+.attr("y", 6)
+.attr("dy", ".71em")
+.style("text-anchor", "end")
+
+});
+
+</script>
+</body>
+</html>
