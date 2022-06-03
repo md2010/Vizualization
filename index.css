@@ -13,6 +13,11 @@ svg {
 	float: right;
 }
 
+#state {
+	text-align: center;
+	font-size: 34px;
+}
+
 #dataSum {
 	float: left;
 	margin-top: 20px;
@@ -26,13 +31,13 @@ svg {
 	font-size: 24px;
 }
 
-#weather {
+#weather, #weatherState {
 	margin-top: 30px;
 	float: left;
 	font-size: 18px;
 }
 
-#num {
+#num, #numState {
 	margin-top: 10px;
 	float: right;
 	font-size: 18px;
