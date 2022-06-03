@@ -9,8 +9,9 @@
 <body>
 
 <div id="data"> 
-	<p id="state"> Zupanija </p>
-	<p id="n"> Ukupan broj </p>
+	<div id="state"> State </div>
+	<div id="weatherState"> WEATHER </div>
+	<div id="numState"> NUMBER </div>
 </div>
 
 <div id="dataSum"> Summary of accidents for USA 
@@ -25,7 +26,7 @@ dataSum = [
 			{"weather" : "Cloudy", "num" :4622},
 			{"weather" : "Fog,smog, smoke", "num" :370}
 		  ];
-		  
+	  
 d3.select("#weather")
 	.selectAll("div")
 	.data(dataSum)
@@ -67,14 +68,45 @@ d3.json("us.json", function(error, us) {
 		.style("stroke", "white")
 		.style("stroke-width", 2)
 		.style("fill-opacity", function() { return Math.random(); })
-		.on("click", function(d) { clicked(d); });
+		.on("click", function(d, i) { clicked(d, i); });
 });
 
-function clicked(d) {
+function clicked(d, i) {
 
 d3.select("#data").transition().style('visibility', 'visible');
 d3.select("#state")
 	.text(d.properties.name);
+	
+var s = d.properties.name;
+dataSum = [
+			{"weather" : "Clear", "num" : 24963}, 
+			{"weather" : "Rain", "num" : 2634},	
+			{"weather" : "Cloudy", "num" :4622},
+			{"weather" : "Fog,smog, smoke", "num" :370}
+		  ];
+d3.json("accidentsByState.json", function(data) {	
+	
+	let result=data.find(itm => itm.state == s);
+	var obj = [];
+	console.log(result);
+	obj.push(result.clear);
+	obj.push(result.rain);
+	
+	d3.select("#weatherState")
+	.selectAll("div")
+	.data(dataSum)
+	.enter()
+	.insert("p")
+	.text(function (d, i) { return d.weather; });
+		
+	d3.select("#numState")
+		.selectAll("div")
+		.data(obj)
+		.enter()
+		.insert("p")
+		.text(function(obj) { return obj; });
+});
+
 var bounds = path.bounds(d),
 				dx = bounds[1][0] - bounds[0][0],
 				dy = bounds[1][1] - bounds[0][1],
@@ -93,6 +125,7 @@ var bounds = path.bounds(d),
 				.attr("transform", "");
 				
 d3.select("#data").transition().delay(5000).duration(1000).style("visibility", "hidden");
+d3.select("#data").selectAll("p").remove();
 }
 
 </script>
