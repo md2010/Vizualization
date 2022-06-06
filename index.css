@@ -1,4 +1,15 @@
+#legend {
+      height: 200px;  
+      width: 150px; 
+	  margin-left: 50px;
+}
+
+#legend p {
+	font: 20px sans-serif;
+}
+
 #data {
+	overflow: auto;
 	float:right;
 	border-style: solid; 
 	border-width: thin; 

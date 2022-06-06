@@ -5,6 +5,7 @@
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3-legend/1.1.0/d3-legend.js"></script>
 <link rel="stylesheet" href="index.css">
 
 </head>
@@ -19,6 +20,10 @@
 	<div id="weather"> WEATHER </div>
 	<div id="num"> NUMBER </div>
 </div>
+
+<div id = "legend"> 
+	<p> Legend </p>
+ </div>
 
 <script>
 
@@ -64,9 +69,9 @@ var sums = [1036,57,953, 270, 3732,1864, 959, 157, 210, 393, 455, 664, 1708, 122
 
 d3.json("usOrig.json", function(error, us) {
 	
-	var color = d3.scale.linear()
+	var colorScale = d3.scale.linear()
 	  .domain([43,4419])
-	  .range(["blanchedalmond", "darkgoldenrod"]);
+	  .range(["blanchedalmond", "burlywood", "darkgoldenrod"]);
 	
 	var statesData = topojson.feature(us, us.objects.states);
 	var states = g.selectAll('path.state')
@@ -77,8 +82,23 @@ d3.json("usOrig.json", function(error, us) {
 		.attr("d", path)
 		.style("stroke", "white")
 		.style("stroke-width", 2)
-		.attr("fill", function (d, i) { return color(sums[i]); })
+		.attr("fill", function (d, i) { return colorScale(sums[i]); })
 		.on("click", function(d, i) { clicked(d, i); });
+		
+	var svg1 = d3.select("#legend")
+				.append("svg")
+				.attr("transform", "translate(0, 20)");
+	
+	var colorLegend = d3.legend.color()
+        .labelFormat(d3.format(".0f accidents"))
+        .scale(colorScale)
+        .shapePadding(5)
+        .shapeWidth(50)
+        .shapeHeight(20)
+        .labelOffset(5);
+
+     svg1.call(colorLegend);
+ 
 });
 
 
@@ -91,6 +111,8 @@ d3.json("usOrig.json", function(error, us) {
 };	*/
 
 function clicked(d, i) {
+
+d3.select("#legend").transition().delay(5000).duration(1000).style("visibility", "hidden");
 d3.select("#data").transition().style('visibility', 'visible');
 d3.select("#state")
 	.text(d.properties.name);
@@ -112,8 +134,9 @@ d3.json("accidentsByState.json", function(data) {
 		json.push(item);
 	}
 	
-	createBarchart(obj);
 	tableData(st);
+	createBarchart(obj);
+	
 });
 
 function tableData(s) {
@@ -271,6 +294,7 @@ var bounds = path.bounds(d),
 d3.select("#data").transition().delay(5000).duration(1000).style("visibility", "hidden");
 d3.select("#data").selectAll("table").remove();
 d3.select("#data").selectAll("svg").remove();
+d3.select("#legend").transition().delay(5000).duration(1000).style("visibility", "visible");
 }
 
 
