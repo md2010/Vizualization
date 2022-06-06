@@ -60,7 +60,8 @@ var path = d3.geo.path()
 
 var svg = d3.select("body").append("svg")
 .attr("width", width)
-.attr("height", height);
+.attr("height", height)
+.attr("transform", "translate(0, -100)");
 
 var g = svg.append("g");
 
@@ -115,7 +116,7 @@ function clicked(d, i) {
 d3.select("#legend").transition().delay(5000).duration(1000).style("visibility", "hidden");
 d3.select("#data").transition().style('visibility', 'visible');
 d3.select("#state")
-	.text(d.properties.name);
+	.html(d.properties.name);
 var st = "Alabama";
 var s = d.properties.name;
 d3.json("accidentsByState.json", function(data) {	
@@ -138,6 +139,7 @@ d3.json("accidentsByState.json", function(data) {
 	createBarchart(obj);
 	
 });
+
 
 function tableData(s) {
 
@@ -213,7 +215,7 @@ function highlight(){
 
 function createBarchart(obj) {
 
-d3.select("#state").append('svg');
+d3.select("#state");
 	  
 var margin = {top: 20, bottom: 70, left:40, right: 20};
 var width = 500 - margin.left - margin.right;
@@ -291,10 +293,10 @@ var bounds = path.bounds(d),
 				.delay(5000)
 				.attr("transform", "");
 				
-d3.select("#data").transition().delay(5000).duration(1000).style("visibility", "hidden");
+d3.select("#data").transition().delay(10000).duration(1000).style("visibility", "hidden");
 d3.select("#data").selectAll("table").remove();
 d3.select("#data").selectAll("svg").remove();
-d3.select("#legend").transition().delay(5000).duration(1000).style("visibility", "visible");
+d3.select("#legend").transition().delay(10000).duration(1000).style("visibility", "visible");
 }
 
 
