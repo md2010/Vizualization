@@ -13,6 +13,7 @@
 
 <div id="data"> 
 	<p id="state"> State </p>
+	<p id="time"> Time </p>
 </div>
 
 <div id="dataSum"> 
@@ -51,7 +52,7 @@ d3.select("#num")
 	
 d3.select("#data").style('visibility', 'hidden');
 
-var width = 1000;
+var width = 900;
 var height = 700;
 var projection = d3.geo.albers()
 
@@ -113,7 +114,6 @@ d3.json("usOrig.json", function(error, us) {
 
 function clicked(d, i) {
 
-d3.select("#legend").transition().delay(5000).duration(1000).style("visibility", "hidden");
 d3.select("#data").transition().style('visibility', 'visible');
 d3.select("#state")
 	.html(d.properties.name);
@@ -135,7 +135,7 @@ d3.json("accidentsByState.json", function(data) {
 		json.push(item);
 	}
 	
-	tableData(st);
+	tableData(s);
 	createBarchart(obj);
 	
 });
@@ -166,62 +166,8 @@ var obj = [];
 		numbers.push(obj[i].number);
 	}
 	createBarchart1(times, numbers);
-	//tabulate(json, ['time', 'number']);
-	//highlight();
 });
 
-}
-
-function tabulate(data, columns) {
-		var table = d3.select("#data").append('table')
-		var thead = table.append('thead')
-		var	tbody = table.append('tbody');
-
-		// append the header row
-		thead.append('tr')
-		  .selectAll('th')
-		  .data(columns).enter()
-		  .append('th')
-		    .text(function (column) { return column; });
-
-		// create a row for each object in the data
-		var rows = tbody.selectAll('tr')
-		  .data(data)
-		  .enter()
-		  .append('tr');
-
-		// create a cell in each row for each column
-		var cells = rows.selectAll('td')
-		  .data(function (row) {
-		    return columns.map(function (column) {
-		      return {column: column, value: row[column]};
-		    });
-		  })
-		  .enter()
-		  .append('td')
-		    .text(function (d) { return d.value; });
-	  return table;
-}
-
-function highlight(){
-	$(function(){
-	  var cols = []
-	  var trs = $('table tr')
-	  var data =$.each(trs , function(index, tr){
-		$.each($(tr).find("td").not(":first"), function(index, td){
-		  cols[index] = cols[index] || [];
-		  cols[index].push($(td).text())
-		})
-	  });
-	  cols.forEach(function(col, index){
-		var max = Math.max.apply(null, col);
-		var min = Math.min.apply(null, col)
-		$('table tr').find('td:eq('+(index+1)+')').each(function(i, td){
-		  $(td).toggleClass('max', +$(td).text() === max)
-		  $(td).toggleClass('min', +$(td).text() === min)  
-		})
-	  })
-	})
 }
 
 function createBarchart(obj) {
@@ -289,20 +235,21 @@ svg.append("g")
 
 function createBarchart1(times, numbers) {
 
-d3.select("#state");
-	  
+d3.select("#time")
+	.html("Accidents that occured under the various circumstances and by time of occuring");
+
 var margin = {top: 20, bottom: 70, left:40, right: 20};
-var width = 500 - margin.left - margin.right;
+var width = 700 - margin.left - margin.right;
 var height = 500 - margin.top - margin.bottom;
 var barPadding = 4;
-var barWidth = 50; //width / obj.length - barPadding;
+var barWidth = 10; //width / obj.length - barPadding;
 
 var x = d3.scale.ordinal()
 .domain(d3.range(times.length))
 .rangeRoundBands([0, width]);
 
 var y = d3.scale.linear()
-.domain([0, d3.max(numbers.max)])
+.domain([0, d3.max(numbers)])
 .range([height, 0]);
 
 var svg = d3.select("div")
@@ -314,20 +261,22 @@ var svg = d3.select("div")
 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	
 var barchart = svg.selectAll("rect")
-.data(obj)
+.data(numbers)
 .enter()
 .append("rect")
 .attr("x", function(d, i) { return x(i); })
 .attr("y", y) .attr("height", function(d) { return height - y(d); })
 .attr("width", barWidth)
-.attr("fill", "lightblue");
-
-//var times = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+.attr("fill", function(d) {
+		if(d === d3.max(numbers)) { return "red"}
+		else if(d === d3.min(numbers)) { return "blue"}
+		else {return "lightblue"} 
+});
 
 var xAxis = d3.svg.axis()
 .scale(x)
 .orient("bottom")
-.tickFormat(function(d, i) { return times(i) }); 
+.tickFormat(function(d, i) { return times[i] }); 
 
 var yAxis = d3.svg.axis()
 .scale(y)
@@ -369,10 +318,9 @@ var bounds = path.bounds(d),
 				.delay(5000)
 				.attr("transform", "");
 				
-d3.select("#data").transition().delay(10000).duration(1000).style("visibility", "hidden");
+d3.select("#data").transition().delay(6000).duration(1000).style("visibility", "hidden");
 d3.select("#data").selectAll("table").remove();
 d3.select("#data").selectAll("svg").remove();
-d3.select("#legend").transition().delay(10000).duration(1000).style("visibility", "visible");
 }
 
 

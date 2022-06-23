@@ -11,13 +11,13 @@
 #data {
 	position: fixed;
 	overflow-y:scroll;
-	margin-left: 1400px;
+	margin-left: 1200px;
 	float:right;
 	border-style: solid; 
 	border-width: thin; 
 	border-color: #50372f;
 	padding: 5px;
-	width: 500px;	
+	width: 800px;	
 	margin-bottom: -50px;
 	max-height: 100%;
 	background-color: gainsboro;
@@ -27,9 +27,15 @@
 
 
 #state {
-	margin: 20px;
+	margin: 10px;
 	text-align: center;
 	font-size: 34px;
+}
+
+#time {
+	margin: 10px;
+	text-align: left;
+	font-size: 20px;
 }
 
 #numState {
